@@ -2,22 +2,24 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './Login';
-import Navbar from './Navbar';
 import Signup from './Signup';
 import Dashboard from './Dashboard';
+import Navbar from './Navbar';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import theme from './theme';
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [originalImage, setOriginalImage] = useState(null);
-  const [result, setResult] = useState(null);
+  const [selectedFile, setSelectedFile] = useState();
+  const [originalImage, setOriginalImage] = useState();
+  const [result, setResult] = useState();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState();
 
   const onFileChange = files => {
     const file = files[0];
     setSelectedFile(file);
     setOriginalImage(URL.createObjectURL(file));
-    setResult(null); // Clear the previous prediction result
+    setResult(null);
   };
 
   const onFileUpload = () => {
@@ -27,30 +29,31 @@ function App() {
     setError(null);
     axios.post('http://localhost:8000/detect/', formData, { responseType: 'blob' })
       .then(response => {
-        console.log('Server response:', response); // Log the server's response
         const url = window.URL.createObjectURL(new Blob([response.data]));
         setResult(url);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Upload error:', error); // Log any errors that occur
         setError('Something went wrong. Please try again.');
         setLoading(false);
       });
   };
 
   return (
-    <Router>
-      <AppContent
-        onFileChange={onFileChange}
-        onFileUpload={onFileUpload}
-        loading={loading}
-        selectedFile={selectedFile}
-        originalImage={originalImage}
-        result={result}
-        error={error}
-      />
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AppContent
+          onFileChange={onFileChange}
+          onFileUpload={onFileUpload}
+          loading={loading}
+          selectedFile={selectedFile}
+          originalImage={originalImage}
+          result={result}
+          error={error}
+        />
+      </Router>
+    </ThemeProvider>
   );
 }
 
@@ -59,6 +62,7 @@ function AppContent({ onFileChange, onFileUpload, loading, selectedFile, origina
 
   return (
     <>
+      {/* Render Navbar only if the path is not '/login' or '/signup' */}
       {location.pathname !== '/login' && location.pathname !== '/signup' && <Navbar />}
       <Routes>
         <Route path="/login" element={<Login />} />
