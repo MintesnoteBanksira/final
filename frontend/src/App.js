@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, CircularProgress, Typography, Box, Grid, Paper } from '@material-ui/core';
-import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
-import ImageDisplay from './ImageDisplay';
-import Dropzone from './Dropzone';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import Login from './Login';
+import Navbar from './Navbar';
+import Signup from './Signup';
+import Dashboard from './Dashboard';
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState();
-  const [originalImage, setOriginalImage] = useState();
-  const [result, setResult] = useState();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [originalImage, setOriginalImage] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState('');
 
   const onFileChange = files => {
     const file = files[0];
@@ -39,28 +40,43 @@ function App() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100vh">
-      <Typography variant="h4" gutterBottom>Image Processor</Typography>
-      <Dropzone onDrop={onFileChange} accept="image/*" />
-      <Button variant="contained" color="secondary" onClick={onFileUpload} disabled={loading || !selectedFile} style={{ marginTop: '20px' }}>
-        {loading ? <CircularProgress size={24} /> : 'Detect'}
-      </Button>
-      {error && <Typography color="error">{error}</Typography>}
-      <Grid container spacing={3} style={{ marginTop: '20px' }}>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <ImageDisplay title="Original" imageSrc={originalImage} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {result && (
-            <Paper>
-              <ImageDisplay title="Result" imageSrc={result} />
-            </Paper>
-          )}
-        </Grid>
-      </Grid>
-    </Box>
+    <Router>
+      <AppContent
+        onFileChange={onFileChange}
+        onFileUpload={onFileUpload}
+        loading={loading}
+        selectedFile={selectedFile}
+        originalImage={originalImage}
+        result={result}
+        error={error}
+      />
+    </Router>
+  );
+}
+
+function AppContent({ onFileChange, onFileUpload, loading, selectedFile, originalImage, result, error }) {
+  const location = useLocation();
+
+  return (
+    <>
+      {location.pathname !== '/login' && location.pathname !== '/signup' && <Navbar />}
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={
+          <Dashboard
+            onFileChange={onFileChange}
+            onFileUpload={onFileUpload}
+            loading={loading}
+            selectedFile={selectedFile}
+            originalImage={originalImage}
+            result={result}
+            error={error}
+          />
+        } />
+        <Route path="/" element={<Login />} />
+      </Routes>
+    </>
   );
 }
 
