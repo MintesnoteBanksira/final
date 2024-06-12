@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import Navbar from './Navbar';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import theme from './theme';
+import DiseaseClassifier from './DiseaseClassifier';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState();
@@ -78,6 +79,7 @@ function AppContent({ onFileChange, onFileUpload, loading, selectedFile, origina
             error={error}
           />
         } />
+        <Route path="/DiseaseClassifier" element={<DiseaseClassifier />} /> {/* Add this line */}
         <Route path="/" element={<Login />} />
       </Routes>
     </>
